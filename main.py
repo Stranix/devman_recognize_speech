@@ -10,6 +10,8 @@ from telegram.ext import CommandHandler
 from telegram.ext import MessageHandler
 from telegram.ext import CallbackContext
 
+from utils import detect_intent_texts
+
 load_dotenv()
 logger = logging.getLogger('recognize_speech_bot')
 
@@ -22,17 +24,16 @@ def start(update: Update, context: CallbackContext):
 
 
 def echo(update: Update, context: CallbackContext):
-    context.bot.send_message(
-        chat_id=update.effective_chat.id,
-        text=update.message.text
-    )
+    chat_id = update.effective_chat.id
+    message = detect_intent_texts(str(chat_id), update.message.text)
+    context.bot.send_message(chat_id, message)
 
 
 if __name__ == '__main__':
     try:
         logging.basicConfig(
             format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-            level=logging.INFO
+            level=logging.DEBUG
         )
         logger.info('Старт бота')
 
@@ -48,8 +49,6 @@ if __name__ == '__main__':
 
         updater.start_polling()
     except KeyError:
-        logger.critical('Переменная окружения TG_BOT_API - обязательная')
+        logger.critical('Заданы не все переменные окружения')
     except KeyboardInterrupt:
-        logger.warning('Работа программы прервана')
-
-
+        logger.info('Работа программы завершена')
