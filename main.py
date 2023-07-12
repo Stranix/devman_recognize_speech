@@ -10,7 +10,7 @@ from telegram.ext import CommandHandler
 from telegram.ext import MessageHandler
 from telegram.ext import CallbackContext
 
-from utils import detect_intent_texts
+from dialogflow import detect_intent_texts
 
 load_dotenv()
 logger = logging.getLogger('recognize_speech_bot')
