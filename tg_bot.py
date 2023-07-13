@@ -28,7 +28,7 @@ def start(update: Update, context: CallbackContext):
 def echo(update: Update, context: CallbackContext):
     dialog_flow_project_id = os.environ['DIALOGFLOW_PROJECT_ID']
     chat_id = update.effective_chat.id
-    message = detect_intent_texts(
+    _, message = detect_intent_texts(
         dialog_flow_project_id,
         str(chat_id),
         update.message.text

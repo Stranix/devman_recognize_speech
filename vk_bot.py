@@ -3,23 +3,27 @@ import random
 
 import vk_api as vk
 
-from vk_api.longpoll import VkLongPoll
+from vk_api.longpoll import VkLongPoll, Event
 from vk_api.longpoll import VkEventType
 
 from dotenv import load_dotenv
+from vk_api.vk_api import VkApiMethod
 
 from dialogflow import detect_intent_texts
 
 load_dotenv()
 
 
-def echo(event, vk_api, dialog_flow_project_id):
+def echo(event: Event, vk_api: VkApiMethod, dialog_flow_project_id: str):
     chat_id = event.user_id
-    message = detect_intent_texts(
+    is_fallback, message = detect_intent_texts(
         dialog_flow_project_id,
         str(chat_id),
         event.text
     )
+
+    if is_fallback:
+        return
 
     random_id = random.randint(1, 1000)
     vk_api.messages.send(user_id=chat_id, message=message, random_id=random_id)

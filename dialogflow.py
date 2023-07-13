@@ -25,8 +25,8 @@ def detect_intent_texts(
         project_id: str,
         session_id: str,
         text: str,
-        language_code='ru'
-) -> str:
+        language_code='ru',
+) -> tuple[bool, str]:
     session_client = dialogflow.SessionsClient()
     session = session_client.session_path(project_id, session_id)
 
@@ -39,8 +39,10 @@ def detect_intent_texts(
             'query_input': query_input,
         }
     )
+    is_fallback = response.query_result.intent.is_fallback
+    message = response.query_result.fulfillment_text
 
-    return response.query_result.fulfillment_text
+    return is_fallback, message
 
 
 def create_intent(
