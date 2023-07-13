@@ -4,11 +4,13 @@ import logging
 from dotenv import load_dotenv
 
 from telegram import Update
-from telegram.ext import Updater
-from telegram.ext import Filters
-from telegram.ext import CommandHandler
-from telegram.ext import MessageHandler
-from telegram.ext import CallbackContext
+from telegram.ext import (
+    Updater,
+    Filters,
+    CommandHandler,
+    MessageHandler,
+    CallbackContext
+)
 
 from dialogflow import detect_intent_texts
 
@@ -24,8 +26,13 @@ def start(update: Update, context: CallbackContext):
 
 
 def echo(update: Update, context: CallbackContext):
+    dialog_flow_project_id = os.environ['DIALOGFLOW_PROJECT_ID']
     chat_id = update.effective_chat.id
-    message = detect_intent_texts(str(chat_id), update.message.text)
+    message = detect_intent_texts(
+        dialog_flow_project_id,
+        str(chat_id),
+        update.message.text
+    )
     context.bot.send_message(chat_id, message)
 
 
