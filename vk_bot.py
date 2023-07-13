@@ -1,23 +1,31 @@
 import os
 import random
+import logging
 
 import vk_api as vk
 
-from vk_api.longpoll import VkLongPoll, Event
+from vk_api.vk_api import VkApiMethod
+from vk_api.longpoll import Event
+from vk_api.longpoll import VkLongPoll
 from vk_api.longpoll import VkEventType
 
 from dotenv import load_dotenv
-from vk_api.vk_api import VkApiMethod
 
 from dialogflow import detect_intent_texts
+from logging_handlers import TelegramLogsHandler
 
-load_dotenv()
+logger = logging.getLogger(__name__)
 
 
-def echo(event: Event, vk_api: VkApiMethod, dialog_flow_project_id: str):
+def send_replay_message(
+        event: Event,
+        vk_api: VkApiMethod,
+        dialogflow_project_id: str
+):
+    logger.info('Отправка ответа пользователю')
     chat_id = event.user_id
     is_fallback, message = detect_intent_texts(
-        dialog_flow_project_id,
+        dialogflow_project_id,
         str(chat_id),
         event.text
     )
@@ -29,12 +37,31 @@ def echo(event: Event, vk_api: VkApiMethod, dialog_flow_project_id: str):
     vk_api.messages.send(user_id=chat_id, message=message, random_id=random_id)
 
 
-if __name__ == '__main__':
-    dialog_flow_project_id = os.environ['DIALOGFLOW_PROJECT_ID']
-    vk_group_token = os.environ['VK_GROUP_API_KEY']
-    vk_session = vk.VkApi(token=vk_group_token)
+def start_bot(vk_token: str, dialogflow_project_id: str):
+    logger.info('Старт бота группы vk')
+    vk_session = vk.VkApi(token=vk_token)
     vk_api = vk_session.get_api()
     longpoll = VkLongPoll(vk_session)
     for event in longpoll.listen():
         if event.type == VkEventType.MESSAGE_NEW and event.to_me:
-            echo(event, vk_api, dialog_flow_project_id)
+            send_replay_message(event, vk_api, dialogflow_project_id)
+
+
+if __name__ == '__main__':
+    try:
+        load_dotenv()
+        dialogflow_project_id = os.environ['DIALOGFLOW_PROJECT_ID']
+        vk_group_token = os.environ['VK_GROUP_API_KEY']
+        tg_bot_token = os.environ['TG_BOT_TOKEN']
+        tg_admin_id = int(os.environ['TG_ADMIN_ID'])
+
+        logging.basicConfig(level=logging.ERROR)
+        logger.addHandler(TelegramLogsHandler(tg_bot_token, tg_admin_id))
+
+        start_bot(vk_group_token, dialogflow_project_id)
+    except KeyError:
+        logger.critical('Не все переменные окружения заданы')
+    except KeyboardInterrupt:
+        logger.warning('Работа программы прервана')
+    except Exception as error:
+        logger.exception(error)
