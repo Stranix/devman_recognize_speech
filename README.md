@@ -2,7 +2,7 @@
 
 Это бот для Телеграма и ВК, который умеет отвечать на типичные вопросы с использованием [DialogFlow](https://cloud.google.com/dialogflow/docs)
 
-![screenshot demo tg](https://github.com/Stranix/devman_recognize_speech/blob/master/promo/tg.gif?raw=true) ![screenshot demo vk](https://github.com/Stranix/devman_recognize_speech/blob/master/promo/vk.gif?raw=true)
+<img src="https://github.com/Stranix/devman_recognize_speech/blob/master/promo/tg.gif?raw=true" width="250"> <img src="https://github.com/Stranix/devman_recognize_speech/blob/master/promo/vk.gif?raw=true" width="250">
 
 
 ## Требования
